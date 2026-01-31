@@ -72,7 +72,7 @@ export default function ImportPage() {
 
       // Upload file
       const { file_url } = await UploadFile({ file });
-      
+
       // Corrected the schema to expect a direct array of contacts, which is standard for CSV parsing.
       const result = await ExtractDataFromUploadedFile({
         file_url,
@@ -115,13 +115,33 @@ export default function ImportPage() {
         return cleaned;
       });
 
-      const results = await Contact.bulkCreate(cleanedContacts);
+      // Normalize data fields
+      const normalizedContacts = cleanedContacts.map(c => {
+        // Normalize escalationContact to "Y" or "N"
+        if (c.escalationContact) {
+          const val = c.escalationContact.toString().toLowerCase();
+          if (['yes', 'y', 'true', '1', 'on'].includes(val)) {
+            c.escalationContact = 'Y';
+          } else {
+            c.escalationContact = 'N';
+          }
+        }
+
+        // Ensure products is a string if it's not (though query params usually make it string)
+        if (c.products && Array.isArray(c.products)) {
+          c.products = c.products.join('; ');
+        }
+
+        return c;
+      });
+
+      const results = await Contact.bulkCreate(normalizedContacts);
       setImportResults({
         success: true,
-        imported: cleanedContacts.length,
+        imported: normalizedContacts.length,
         contacts: results
       });
-      
+
       // Reset form
       setFile(null);
       setExtractedData(null);
@@ -226,7 +246,7 @@ export default function ImportPage() {
                   Upload a CSV file exported from Google Sheets with the following headers:
                 </p>
                 <div className="flex flex-wrap justify-center gap-2 mb-6">
-                  {['firstName', 'lastName', 'companyName', 'workEmail', 'personalEmail', 'phoneNumber'].map(header => (
+                  {['firstName', 'lastName', 'companyName', 'workEmail', 'personalEmail', 'phoneNumber', 'products', 'escalationContact'].map(header => (
                     <Badge key={header} variant="secondary" className="bg-slate-100 text-slate-700">
                       {header}
                     </Badge>
@@ -238,11 +258,10 @@ export default function ImportPage() {
               </div>
 
               <div
-                className={`border-2 border-dashed rounded-xl p-8 transition-all duration-200 ${
-                  dragActive 
-                    ? "border-slate-400 bg-slate-50" 
+                className={`border-2 border-dashed rounded-xl p-8 transition-all duration-200 ${dragActive
+                    ? "border-slate-400 bg-slate-50"
                     : "border-slate-300 hover:border-slate-400"
-                }`}
+                  }`}
                 onDragEnter={handleDrag}
                 onDragLeave={handleDrag}
                 onDragOver={handleDrag}
@@ -255,12 +274,12 @@ export default function ImportPage() {
                   onChange={handleFileSelect}
                   className="hidden"
                 />
-                
+
                 <div className="text-center">
                   <div className="w-16 h-16 mx-auto mb-4 bg-slate-100 rounded-full flex items-center justify-center">
                     <FileText className="w-8 h-8 text-slate-500" />
                   </div>
-                  
+
                   {file ? (
                     <div className="mb-4">
                       <p className="font-semibold text-slate-900">{file.name}</p>
@@ -296,7 +315,7 @@ export default function ImportPage() {
                       <p className="text-slate-600">Processing your CSV file...</p>
                     </div>
                   ) : (
-                    <Button 
+                    <Button
                       onClick={processFile}
                       className="bg-slate-900 hover:bg-slate-800"
                     >
@@ -337,7 +356,10 @@ export default function ImportPage() {
                       <TableHead>Company</TableHead>
                       <TableHead>Work Email</TableHead>
                       <TableHead>Personal Email</TableHead>
+                      <TableHead>Personal Email</TableHead>
                       <TableHead>Phone</TableHead>
+                      <TableHead>Products</TableHead>
+                      <TableHead>Escalation</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -350,6 +372,8 @@ export default function ImportPage() {
                         <TableCell>{contact.workEmail || '—'}</TableCell>
                         <TableCell>{contact.personalEmail || '—'}</TableCell>
                         <TableCell>{contact.phoneNumber || '—'}</TableCell>
+                        <TableCell>{contact.products || '—'}</TableCell>
+                        <TableCell>{contact.escalationContact || '—'}</TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

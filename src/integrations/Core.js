@@ -32,20 +32,43 @@ export const ExtractDataFromUploadedFile = async ({ file_url, json_schema }) => 
         const response = await fetch(file_url);
         const text = await response.text();
 
-        // Simple CSV parser
+        // Better CSV parser handling quotes
+        // Matches: "quoted field" OR unquoted_field
+        // followed by comma or end of line
+        const parseCSVLine = (line) => {
+            const values = [];
+            let current = '';
+            let inQuote = false;
+
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    inQuote = !inQuote;
+                } else if (char === ',' && !inQuote) {
+                    values.push(current.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            values.push(current.trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
+            return values;
+        };
+
         const lines = text.split('\n').filter(line => line.trim() !== '');
         if (lines.length < 2) return { status: 'success', output: [] };
 
-        const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g, ''));
+        const headers = parseCSVLine(lines[0]);
         const data = [];
 
         for (let i = 1; i < lines.length; i++) {
-            // Handle quotes loosely
-            const row = lines[i].split(',').map(cell => cell.trim().replace(/^"|"$/g, ''));
+            const row = parseCSVLine(lines[i]);
             if (row.length === headers.length) {
                 const obj = {};
                 headers.forEach((h, index) => {
-                    obj[h] = row[index];
+                    // Remove any BOM or whitespace from header keys
+                    const key = h.trim();
+                    if (key) obj[key] = row[index];
                 });
                 data.push(obj);
             }

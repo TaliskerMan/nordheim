@@ -27,7 +27,7 @@ export default function ContactTable({ contacts, sortField, sortDirection, onSor
     if (!phone) return null;
     const cleaned = phone.replace(/\D/g, '');
     if (cleaned.length === 10) {
-      return `(${cleaned.slice(0,3)}) ${cleaned.slice(3,6)}-${cleaned.slice(6)}`;
+      return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6)}`;
     }
     return phone;
   };
@@ -119,9 +119,8 @@ export default function ContactTable({ contacts, sortField, sortDirection, onSor
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -20 }}
                     transition={{ delay: index * 0.05 }}
-                    className={`border-b border-slate-100 transition-colors hover:bg-slate-100 ${
-                      index % 2 === 0 ? 'bg-white' : 'bg-[#FFFDD0]'
-                    }`}
+                    className={`border-b border-slate-100 transition-colors hover:bg-slate-100 ${index % 2 === 0 ? 'bg-white' : 'bg-[#FFFDD0]'
+                      }`}
                   >
                     <TableCell className="py-4">
                       <div>
@@ -189,7 +188,13 @@ export default function ContactTable({ contacts, sortField, sortDirection, onSor
                     </TableCell>
                     <TableCell className="py-4">
                       {contact.products ? (
-                        <span className="text-slate-700">{contact.products}</span>
+                        <div className="flex flex-wrap gap-1">
+                          {contact.products.split(/[;,]+/).map((prod, i) => (
+                            <Badge key={i} variant="outline" className="text-xs border-slate-300 text-slate-700">
+                              {prod.trim()}
+                            </Badge>
+                          ))}
+                        </div>
                       ) : (
                         <span className="text-slate-400 text-sm">No products</span>
                       )}
@@ -237,13 +242,13 @@ export default function ContactTable({ contacts, sortField, sortDirection, onSor
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Contact</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete {contactToDelete && getContactDisplayName(contactToDelete)}? 
+              Are you sure you want to delete {contactToDelete && getContactDisplayName(contactToDelete)}?
               This action cannot be undone.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={confirmDelete}
               className="bg-red-600 hover:bg-red-700"
             >

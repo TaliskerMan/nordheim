@@ -7,16 +7,16 @@ echo "window.__RUNTIME_CONFIG__ = {" > /usr/share/nginx/html/env-config.js
 # Note: we check if the variable exists to avoid printing "undefined" or empty strings if not needed,
 # though explicit undefined is safer if the frontend logic expects it.
 
-if [ -n "$VITE_BASE44_APP_ID" ]; then
-  echo "  VITE_BASE44_APP_ID: \"$VITE_BASE44_APP_ID\"," >> /usr/share/nginx/html/env-config.js
+if [ -n "$VITE_APP_ID" ]; then
+  echo "  VITE_APP_ID: \"$VITE_APP_ID\"," >> /usr/share/nginx/html/env-config.js
 fi
 
-if [ -n "$VITE_BASE44_FUNCTIONS_VERSION" ]; then
-  echo "  VITE_BASE44_FUNCTIONS_VERSION: \"$VITE_BASE44_FUNCTIONS_VERSION\"," >> /usr/share/nginx/html/env-config.js
+if [ -n "$VITE_APP_FUNCTIONS_VERSION" ]; then
+  echo "  VITE_APP_FUNCTIONS_VERSION: \"$VITE_APP_FUNCTIONS_VERSION\"," >> /usr/share/nginx/html/env-config.js
 fi
 
-if [ -n "$VITE_BASE44_APP_BASE_URL" ]; then
-  echo "  VITE_BASE44_APP_BASE_URL: \"$VITE_BASE44_APP_BASE_URL\"," >> /usr/share/nginx/html/env-config.js
+if [ -n "$VITE_APP_BASE_URL" ]; then
+  echo "  VITE_APP_BASE_URL: \"$VITE_APP_BASE_URL\"," >> /usr/share/nginx/html/env-config.js
 fi
 
 echo "};" >> /usr/share/nginx/html/env-config.js

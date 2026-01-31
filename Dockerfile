@@ -10,9 +10,9 @@ COPY . .
 
 # Set dummy environment variables to satisfy build-time requirements
 # These will be overridden by window.__RUNTIME_CONFIG__ at runtime
-ENV VITE_BASE44_APP_ID=build_time_placeholder
-ENV VITE_BASE44_FUNCTIONS_VERSION=v1
-ENV VITE_BASE44_APP_BASE_URL=https://api.base44.com
+ENV VITE_APP_ID=build_time_placeholder
+ENV VITE_APP_FUNCTIONS_VERSION=v1
+ENV VITE_APP_BASE_URL=http://localhost:80
 
 RUN npm run build
 
@@ -23,7 +23,7 @@ WORKDIR /app
 
 # Copy server files
 COPY --from=builder /app/package*.json ./
-RUN npm ci --only=production
+RUN npm install --only=production
 COPY --from=builder /app/server ./server
 
 # Create data directory

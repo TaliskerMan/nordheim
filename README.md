@@ -63,4 +63,4 @@ docker run -d -p 8080:80 \
 - **Corporations & Businesses**: A commercial license is required to use this software in a corporate environment. Please contact sales@nordheim.online.
 - **Individuals**: You are free to run this software for personal use.
 
-Copyright (c) 2024 TaliskerMan / Nordheim. All rights reserved.
+Copyright (c) 2026 Chuck Talk <cwtalk1@gmail.com>. All rights reserved.

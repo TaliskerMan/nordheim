@@ -1,26 +1,16 @@
-import { base44 } from '@/api/base44Client';
-
 export const UploadFile = async ({ file }) => {
-    // Simple upload to 'imports' bucket
-    const filePath = `${Date.now()}_${file.name}`;
-    const { data, error } = await base44.storage
-        .from('imports')
-        .upload(filePath, file);
+    const formData = new FormData();
+    formData.append('file', file);
 
-    if (error) {
-        // If bucket doesn't exist, we might fail here. 
-        // For now, let's assume we can just return a fake URL if we want to bypass,
-        // but better to try real upload.
-        console.error('Upload error:', error);
-        throw error;
-    }
+    const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+    });
 
-    // Get public URL
-    const { data: { publicUrl } } = base44.storage
-        .from('imports')
-        .getPublicUrl(filePath);
+    const result = await res.json();
+    if (result.error) throw new Error(result.error);
 
-    return { file_url: publicUrl, filePath };
+    return { file_url: result.data.publicUrl, filePath: result.data.publicUrl };
 };
 
 export const ExtractDataFromUploadedFile = async ({ file_url, json_schema }) => {

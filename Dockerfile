@@ -17,24 +17,23 @@ ENV VITE_BASE44_APP_BASE_URL=https://api.base44.com
 RUN npm run build
 
 # Production stage
-FROM nginx:alpine
+FROM node:20-alpine
 
-# Install bash for the entrypoint script
-RUN apk add --no-cache bash
+WORKDIR /app
 
-WORKDIR /usr/share/nginx/html
+# Copy server files
+COPY --from=builder /app/package*.json ./
+RUN npm ci --only=production
+COPY --from=builder /app/server ./server
 
-# Remove default nginx static assets
-RUN rm -rf ./*
+# Create data directory
+RUN mkdir -p data/uploads
 
-# Copy static assets from builder stage
-COPY --from=builder /app/dist .
-
-# Copy custom entrypoint script
-COPY entrypoint.sh /docker-entrypoint.d/40-env-config.sh
-RUN chmod +x /docker-entrypoint.d/40-env-config.sh
+# Copy built frontend assets
+COPY --from=builder /app/dist ./dist
 
 # Expose port 80
 EXPOSE 80
+ENV PORT=80
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["node", "server/index.js"]

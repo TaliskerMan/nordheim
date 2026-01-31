@@ -9,22 +9,20 @@ You can run this application on your own server (Linux, Google Cloud, AWS, etc.)
 ### Prerequisites
 
 - [Docker](https://docs.docker.com/get-docker/) installed on your machine.
-- A **Base44 App ID** and associated API keys. 
-  - *If you purchased this software, these will be provided to you.*
-  - *If you are an individual user, you can generate these by creating a project on Base44.*
+- No external accounts required! This app runs 100% locally with an embedded SQLite database.
 
 ### Quick Start (Docker Compose)
 
 1.  Clone this repository or download the package.
-2.  Create a `.env` file in the root directory (or modify `docker-compose.yml` directly):
+2.  Run the application:
 
-    ```ini
-    VITE_BASE44_APP_ID=your_app_id_here
-    VITE_BASE44_FUNCTIONS_VERSION=v1
-    VITE_BASE44_APP_BASE_URL=https://api.base44.com
+    ```bash
+    docker-compose up -d
     ```
 
-3.  Run the application:
+3.  Open your browser to `http://localhost:8080`.
+    - Default Login: `admin@example.com`
+    - Default Password: `password`
 
     ```bash
     docker-compose up -d
@@ -37,11 +35,7 @@ You can run this application on your own server (Linux, Google Cloud, AWS, etc.)
 ```bash
 docker build -t contact-base .
 
-docker run -d -p 8080:80 \
-  -e VITE_BASE44_APP_ID=your_app_id \
-  -e VITE_BASE44_FUNCTIONS_VERSION=v1 \
-  -e VITE_BASE44_APP_BASE_URL=https://api.base44.com \
-  contact-base
+docker run -d -p 8080:80 contact-base
 ```
 
 ## for Developers

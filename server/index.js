@@ -4,6 +4,8 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import multer from 'multer';
 import fs from 'fs';
+import https from 'https';
+import http from 'http';
 import db from './db.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -129,6 +131,34 @@ if (fs.existsSync(distDir)) {
     });
 }
 
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-});
+const sslEnabled = process.env.SSL_ENABLED === 'true';
+const sslOptions = {};
+
+if (sslEnabled) {
+    try {
+        const certPath = process.env.SSL_CERT_PATH || './certs/cert.pem';
+        const keyPath = process.env.SSL_KEY_PATH || './certs/key.pem';
+
+        if (fs.existsSync(certPath) && fs.existsSync(keyPath)) {
+            sslOptions.key = fs.readFileSync(keyPath);
+            sslOptions.cert = fs.readFileSync(certPath);
+        } else {
+            console.warn("SSL enabled but cert files not found. Falling back to HTTP.");
+            // process.env.SSL_ENABLED = 'false'; // Keep as is to show error? or fallback?
+            // Fallback implies we change behavior. Let's just create HTTP server if certs missing.
+        }
+    } catch (e) {
+        console.error("Error loading SSL certs:", e);
+    }
+}
+
+if (sslEnabled && sslOptions.key && sslOptions.cert) {
+    https.createServer(sslOptions, app).listen(PORT, () => {
+        console.log(`Secure Server running on port ${PORT} (SLL)`);
+    });
+} else {
+    http.createServer(app).listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+}
+// app.listen Replaced by http/https.createServer

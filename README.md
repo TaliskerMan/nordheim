@@ -1,4 +1,4 @@
-# Contact Base Application
+# Nordheim
 
 A professional contact management system designed to streamline your networking. Import contacts, manage relationships, and organize your network.
 
@@ -11,31 +11,31 @@ You can run this application on your own server (Linux, Google Cloud, AWS, etc.)
 - [Docker](https://docs.docker.com/get-docker/) installed on your machine.
 - No external accounts required! This app runs 100% locally with an embedded SQLite database.
 
-### Quick Start (Docker Compose)
+### Quick Start (Recommended)
 
-1.  Clone this repository or download the package.
-2.  Run the application:
-
-    ```bash
-    docker-compose up -d
-    ```
-
-3.  Open your browser to `http://localhost:8080`.
-    - Default Login: `admin@example.com`
-    - Default Password: `password`
+1.  Clone this repository.
+2.  Run the setup wizard:
 
     ```bash
-    docker-compose up -d
+    ./setup.sh
     ```
 
-4.  Open your browser to `http://localhost:8080`.
+    This script will guide you through:
+    - Choosing between Local or Cloud deployment.
+    - Setting up your domain (e.g., `nordheim.localhost` or `nordheim.com`).
+    - Enabling SSL (HTTPS) with auto-generated self-signed certificates for local development.
+
+3.  Access your application:
+    - Local Insecure: `http://localhost:8080`
+    - Local Secure: `https://nordheim.localhost:8443` (Accept the self-signed cert warning)
 
 ### Manual Docker Run
 
 ```bash
-docker build -t contact-base .
-
-docker run -d -p 8080:80 contact-base
+docker build -t nordheim .
+# Run insecure
+docker run -d -p 8080:80 nordheim
+# Run secure (requires mounting certs and setting env vars, see docker-compose.yml)
 ```
 
 ## for Developers

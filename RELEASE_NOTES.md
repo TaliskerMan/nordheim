@@ -22,7 +22,6 @@
 - **Refined UI**: Updated branding assets and titles across the application.
 
 ## 🔧 Technical Improvements
-- **Dependency Scrubbing**: Removed legacy dependencies on `base44` and other proprietary SDKs.
 - **Local API Client**: Replaced external API calls with a robust, local internal generic client (`src/api/client.js`).
 - **Docker Optimization**: Streamlined `Dockerfile` and `docker-compose.yml` for faster builds and easier port configuration.
 

@@ -41,20 +41,54 @@ function initDb() {
       updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )`);
 
-        // Users Table (Simple auth)
+        // Users Table (Updated for RBAC)
         db.run(`CREATE TABLE IF NOT EXISTS users (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       email TEXT UNIQUE,
-      password TEXT, -- In a real app, hash this!
-      name TEXT
+      password TEXT, -- Hash this!
+      name TEXT,
+      role TEXT DEFAULT 'viewer' -- 'admin' or 'viewer'
     )`);
+
+        // Audit Logs Table
+        db.run(`CREATE TABLE IF NOT EXISTS audit_logs (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER,
+            action TEXT, -- 'CREATE', 'UPDATE', 'DELETE', 'LOGIN', 'IMPORT'
+            entity_type TEXT, -- 'contact', 'user', 'license'
+            entity_id INTEGER,
+            details TEXT,
+            timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+        )`);
+
+        // Licenses Table
+        db.run(`CREATE TABLE IF NOT EXISTS licenses (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_name TEXT,
+            technical_contact TEXT,
+            technical_email TEXT,
+            business_contact TEXT,
+            business_email TEXT,
+            generated_key TEXT UNIQUE,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            created_by INTEGER
+        )`);
 
         // Create default user if not exists
         db.get("SELECT * FROM users WHERE email = ?", ["admin@example.com"], (err, row) => {
             if (!row) {
-                db.run("INSERT INTO users (email, password, name) VALUES (?, ?, ?)",
-                    ["admin@example.com", "password", "Admin User"]);
-                console.log("Default admin user created: admin@example.com / password");
+                // Default password 'password' hash will be handled in auth logic or manually set here 
+                // For now we will insert plaintext and migrate or hash in index.js login
+                // Ideally we hash here directly if we have bcrypt, but db.js doesn't import it yet.
+                // We'll set role='admin'
+                db.run("INSERT INTO users (email, password, name, role) VALUES (?, ?, ?, ?)",
+                    ["admin@example.com", "password", "Admin User", "admin"]);
+                console.log("Default admin user created: admin@example.com / password (admin)");
+            } else {
+                // Ensure existing admin has role
+                if (!row.role) {
+                    db.run("UPDATE users SET role = 'admin' WHERE id = ?", [row.id]);
+                }
             }
         });
     });

@@ -52,9 +52,23 @@ docker run -d -p 8080:80 nordheim
     npm run dev
     ```
 
+## Enterprise Features
+
+Nordheim includes powerful features for corporate environments:
+
+- **Role-Based Access Control (RBAC)**: secure the application ensuring only admins can edit data; viewers can only read.
+- **Audit Logging**: Track all administrator actions (login, edits, imports) for compliance.
+- **Multi-User Scaling**: Unlimited viewers with restricted editing rights.
+
+### Enterprise Setup
+
+To unlock multi-user capabilities and remove restrictions, a valid `license.key` is required.
+1. Obtain a license from [Nordheim.online](https://nordheim.online) or contact `sales@nordheim.online`.
+2. Place the `license.key` file in the `data/` directory.
+
 ## Licensing
 
-- **Corporations & Businesses**: A commercial license is required to use this software in a corporate environment. Please contact sales@nordheim.online.
+- **Corporations & Businesses**: A commercial license is required to use this software in a corporate environment. Access to the Admin features for multi-user scaling requires a valid license key.
 - **Individuals**: You are free to run this software for personal use.
 
 Copyright (c) 2026 Chuck Talk <cwtalk1@gmail.com>. All rights reserved.

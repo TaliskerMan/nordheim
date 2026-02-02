@@ -4,11 +4,14 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Plus, Search, Users, Download } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
+import { useAuth } from "@/lib/AuthContext"; // Import Auth Config
 
 import ContactForm from "../components/contacts/ContactForm";
 import ContactTable from "../components/contacts/ContactTable";
 
 export default function ContactsPage() {
+  const { user } = useAuth(); // Get user
+  const isAdmin = user?.role === 'admin';
   const [contacts, setContacts] = useState([]);
   const [filteredContacts, setFilteredContacts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -27,7 +30,7 @@ export default function ContactsPage() {
     setIsSearching(true);
     const handler = setTimeout(() => {
       let results = [];
-      
+
       if (!searchTerm.trim()) {
         // No search term - show all contacts
         results = [...contacts];
@@ -44,12 +47,12 @@ export default function ContactsPage() {
           const phoneNumber = (contact.phoneNumber || '').toLowerCase();
 
           return firstName.includes(searchLower) ||
-                 lastName.includes(searchLower) ||
-                 fullName.includes(searchLower) ||
-                 company.includes(searchLower) ||
-                 workEmail.includes(searchLower) ||
-                 personalEmail.includes(searchLower) ||
-                 phoneNumber.includes(searchLower);
+            lastName.includes(searchLower) ||
+            fullName.includes(searchLower) ||
+            company.includes(searchLower) ||
+            workEmail.includes(searchLower) ||
+            personalEmail.includes(searchLower) ||
+            phoneNumber.includes(searchLower);
         });
       }
 
@@ -57,12 +60,12 @@ export default function ContactsPage() {
       results.sort((a, b) => {
         let aValue = a[sortField] || '';
         let bValue = b[sortField] || '';
-        
+
         if (sortField === 'lastName' && (!aValue || !bValue)) {
           aValue = a.lastName || a.firstName || '';
           bValue = b.lastName || b.firstName || '';
         }
-        
+
         const comparison = aValue.localeCompare(bValue);
         return sortDirection === 'asc' ? comparison : -comparison;
       });
@@ -99,11 +102,13 @@ export default function ContactsPage() {
   };
 
   const handleEdit = (contact) => {
+    if (!isAdmin) return; // Guard
     setEditingContact(contact);
     setShowForm(true);
   };
 
   const handleDelete = async (contact) => {
+    if (!isAdmin) return; // Guard
     try {
       await Contact.delete(contact.id);
       await loadContacts();
@@ -165,16 +170,18 @@ export default function ContactsPage() {
               <Download className="w-5 h-5 mr-2" />
               Export CSV
             </Button>
-            <Button 
-              onClick={() => {
-                setShowForm(!showForm);
-                setEditingContact(null);
-              }}
-              className="bg-slate-900 hover:bg-slate-800 shadow-lg"
-            >
-              <Plus className="w-5 h-5 mr-2" />
-              Add New Contact
-            </Button>
+            {isAdmin && (
+              <Button
+                onClick={() => {
+                  setShowForm(!showForm);
+                  setEditingContact(null);
+                }}
+                className="bg-slate-900 hover:bg-slate-800 shadow-lg"
+              >
+                <Plus className="w-5 h-5 mr-2" />
+                Add New Contact
+              </Button>
+            )}
           </div>
         </div>
 
@@ -226,7 +233,7 @@ export default function ContactsPage() {
               <div className="flex items-center gap-2">
                 <Users className="w-4 h-4" />
                 <span className="font-medium">
-                  {isSearching 
+                  {isSearching
                     ? 'Searching...'
                     : `${filteredContacts.length} contact${filteredContacts.length !== 1 ? 's' : ''}${searchTerm ? ' found' : ''}`
                   }
@@ -273,13 +280,13 @@ export default function ContactsPage() {
               {searchTerm ? 'No matching contacts found' : 'No contacts to display'}
             </h3>
             <p className="text-slate-600 mb-6">
-              {searchTerm 
-                ? `No contacts match "${searchTerm}". Try a different search term or clear the search.` 
+              {searchTerm
+                ? `No contacts match "${searchTerm}". Try a different search term or clear the search.`
                 : 'Get started by adding your first contact.'
               }
             </p>
             {!searchTerm ? (
-              <Button 
+              <Button
                 onClick={() => {
                   setShowForm(true);
                   setEditingContact(null);
@@ -290,7 +297,7 @@ export default function ContactsPage() {
                 Add First Contact
               </Button>
             ) : (
-              <Button 
+              <Button
                 onClick={() => setSearchTerm("")}
                 variant="outline"
                 className="border-slate-200"

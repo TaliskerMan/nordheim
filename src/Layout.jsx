@@ -1,7 +1,8 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { Users, Upload, Database } from "lucide-react";
+import { useAuth } from "@/lib/AuthContext";
+import { Users, Upload, Database, ShieldAlert, Key } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -14,7 +15,9 @@ import {
   SidebarHeader,
   SidebarProvider,
   SidebarTrigger,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
+import { Button } from "@/components/ui/button";
 
 const navigationItems = [
   {
@@ -29,8 +32,23 @@ const navigationItems = [
   },
 ];
 
+const adminItems = [
+  {
+    title: "Audit Logs",
+    url: createPageUrl("AuditLogs"),
+    icon: ShieldAlert,
+  },
+  {
+    title: "Licenses",
+    url: createPageUrl("Licenses"),
+    icon: Key,
+  },
+];
+
 export default function Layout({ children, currentPageName }) {
   const location = useLocation();
+  const { user, logout } = useAuth();
+  const isAdmin = user?.role === 'admin';
 
   return (
     <SidebarProvider>
@@ -47,7 +65,7 @@ export default function Layout({ children, currentPageName }) {
               </div>
             </div>
           </SidebarHeader>
-          
+
           <SidebarContent className="p-4">
             <SidebarGroup>
               <SidebarGroupLabel className="text-xs font-medium text-slate-500 uppercase tracking-wider px-3 py-2">
@@ -57,11 +75,10 @@ export default function Layout({ children, currentPageName }) {
                 <SidebarMenu className="space-y-1">
                   {navigationItems.map((item) => (
                     <SidebarMenuItem key={item.title}>
-                      <SidebarMenuButton 
-                        asChild 
-                        className={`hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 rounded-lg ${
-                          location.pathname === item.url ? 'bg-slate-900 text-white hover:bg-slate-800 hover:text-white' : ''
-                        }`}
+                      <SidebarMenuButton
+                        asChild
+                        className={`hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 rounded-lg ${location.pathname === item.url ? 'bg-slate-900 text-white hover:bg-slate-800 hover:text-white' : ''
+                          }`}
                       >
                         <Link to={item.url} className="flex items-center gap-3 px-3 py-3">
                           <item.icon className="w-5 h-5" />
@@ -73,7 +90,45 @@ export default function Layout({ children, currentPageName }) {
                 </SidebarMenu>
               </SidebarGroupContent>
             </SidebarGroup>
+
+            {isAdmin && (
+              <SidebarGroup className="mt-4">
+                <SidebarGroupLabel className="text-xs font-medium text-slate-500 uppercase tracking-wider px-3 py-2">
+                  Administration
+                </SidebarGroupLabel>
+                <SidebarGroupContent>
+                  <SidebarMenu className="space-y-1">
+                    {adminItems.map((item) => (
+                      <SidebarMenuItem key={item.title}>
+                        <SidebarMenuButton
+                          asChild
+                          className={`hover:bg-slate-100 hover:text-slate-900 transition-all duration-200 rounded-lg ${location.pathname === item.url ? 'bg-slate-900 text-white hover:bg-slate-800 hover:text-white' : ''
+                            }`}
+                        >
+                          <Link to={item.url} className="flex items-center gap-3 px-3 py-3">
+                            <item.icon className="w-5 h-5" />
+                            <span className="font-medium">{item.title}</span>
+                          </Link>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    ))}
+                  </SidebarMenu>
+                </SidebarGroupContent>
+              </SidebarGroup>
+            )}
           </SidebarContent>
+
+          <SidebarFooter className="p-4 border-t border-slate-100">
+            <div className="flex items-center justify-between">
+              <div className="text-sm text-slate-600 truncate max-w-[120px]">
+                {user?.email}
+                {isAdmin && <span className="block text-xs text-slate-400">Administrator</span>}
+              </div>
+              <Button variant="ghost" size="sm" onClick={() => logout()}>
+                Log out
+              </Button>
+            </div>
+          </SidebarFooter>
         </Sidebar>
 
         <main className="flex-1 flex flex-col">
